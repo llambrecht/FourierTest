@@ -28,7 +28,6 @@ int main(){
 	printf("\nEntree:\n\n");
 	for(i = 0; i < N; i++)
 	{
-		//in[i] = (double) i;
 		in[i] = (double)getData();
 		printf("%d ", (int)in[i]);		
 		if((i+1)%(int)sqrt(N) == 0)
@@ -37,7 +36,6 @@ int main(){
 	printf("\n");
 	
 	
-
 	fftw_execute(my_plan); //Execute FFTW
 
 	printf("Sortie:\n\n");

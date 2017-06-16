@@ -7,7 +7,7 @@
 
 #define N 16
 
-int getData(){ //renvoie 0 ou 1 ; pour test 
+int getData(){ //renvoie 0 ou 1 ; pour fill in pour test 
 	return(rand()%2);
 }
 
@@ -65,22 +65,12 @@ void printComplex(fftw_complex **tab){
 	{
 		for(j = 0 ; j < sqrt(N) ; j++){
 			printf("%d;%d ", (int)creal(tab[i][j]), (int)cimag(tab[i][j])); //on affiche les sorties (cast int pour l'affichage pas dégueu..)
-
 		}
 		printf("\n");
 	}
 	printf("\n");
 }
 
-void destroyAndFree(double** in, fftw_complex** out, fftw_plan *my_plan){
-	int i = 0;
-	for(i = 0 ; i < sqrt(N); i++){
-		fftw_destroy_plan(my_plan[i]);	//Destroy les plans
-
-	}
-
-	// /!\ FREE IN ET OUT ET COPYOUT ET OUT2 NEEDED
-}
 
 int main(){
 	
@@ -100,7 +90,7 @@ int main(){
 	copyOut2 = (fftw_complex**) fftw_malloc(sizeof(fftw_complex*)*sqrt(N)); //allocation
 
 	for(i = 0 ; i < sqrt(N) ; i++){ //allocation
-		in[i] = (double*)fftw_malloc(sizeof(double)*sqrt(N));
+		in[i] = (double*)fftw_malloc(sizeof(double) * sqrt(N));
 		out[i] = (fftw_complex*) fftw_malloc(sizeof(fftw_complex) * sqrt(N));
 		copyOut[i] = (fftw_complex*) fftw_malloc(sizeof(fftw_complex) * sqrt(N));
 		out2[i] = (fftw_complex*) fftw_malloc(sizeof(fftw_complex) * sqrt(N));
@@ -116,12 +106,12 @@ int main(){
 	/*----- FOURIER LIGNE PAR LIGNE -----*/
 	createPlansR(my_plan, in, out);
 	
-	printf("\nEntree:\n\n"); //affichage des entrées 1
+	printf("\nEntree :\n\n"); //affichage des entrées 1
 	fillWithDataAndPrint(in);
 	
 	executePlans(my_plan);
 	
-	printf("Sortie:\n\n"); //affichage des sorties
+	printf("Sortie :\n\n"); //affichage des sorties
 	printComplex(out);
 
 
@@ -130,20 +120,40 @@ int main(){
 	//on copy le résultat de fourier précédent (out) dans (copyOut) ; c'est la nouvelle entrée
 	copyComplex(out, copyOut);
 	//on affiche la nouvelle entrée
-	printf("\nEntree 2:\n\n"); //affichage des entrées 1
+	printf("\nEntree 2 :\n\n"); //affichage des entrées 1
 	printComplex(copyOut);
 	//on fait Fourier colonne par colonne sur copyOut (les lignes de copyOut sont les colonnes de out)
 	createPlansC(my_planC, copyOut, out2);
 	executePlans(my_planC);
 
 	//on affiche le résultat
-	printf("Sortie 2 re-inversee:\n\n"); //affichage des sorties
 	copyComplex(out2, copyOut2); //ça va re-inverser lignes et colonnes
+	printf("Sortie 2 :\n\n"); //affichage des sorties
+	printComplex(out2);
+	printf("Sortie 2 re-inversee :\n\n"); //affichage des sorties
 	printComplex(copyOut2);
 
 
 
-	//Destroy And Free Needed
+	//Destroy And Free 
+	
+	for(i = 0 ; i < sqrt(N); i++){
+		fftw_destroy_plan(my_plan[i]);	//Destroy les plans
+		fftw_destroy_plan(my_planC[i]);	//Destroy les plans
+
+		fftw_free(in[i]);
+		//fftw_free(out[i]);
+		//fftw_free(out2[i]);
+		//fftw_free(copyOut[i]);
+		//fftw_free(copyOut2[i]);
+	}
+	
+	fftw_free(in);
+	fftw_free(out);
+	fftw_free(out2);
+	fftw_free(copyOut);
+	fftw_free(copyOut2);
+
 
 	
 	return 0;
